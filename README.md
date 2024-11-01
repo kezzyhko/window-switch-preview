@@ -10,15 +10,17 @@ Here is the [original README](ORIGINAL_README.md).
 
 It does not work with all apps. The app must have:
 * Separate processes for separate windows. For example, works with Paint, but does not work with Chromium browsers.
-* Each window should have different title. That's how this tool remembers position of previews/thumbnails.
-    * Although, you may use some window renamer tool for that, or launch application via `.bat` file and `start` command.
+
+## Improvements from original version
+
+* Config parameter `ProcessName` to change searched app name.
+    * You can use special value `*` to disable filtering
+    * Process name - is the name of `.exe` file without the `.exe` extension itself.
+    * Defaullt value - `ExeFile`, as it was originaly intended for EVE Online.
+* Automatically adds indexes so that it works for multiple windows with the same title name.
 
 ## Instruction
 
 1. Open and close the app, this will create a config file.
-2. Inside the config file, change `ProcessName` to the process name of the app you want to search.
-    * You can use special value `*` to disable filtering
-    * Process name - is the name of `.exe` file without the `.exe` extension itself.
-    * Defaullt value - `ExeFile`, as it was originaly intended for EVE Online.
-    * You can edit config file only when the app is closed, otherwise it will not save.
+2. Inside the config file, change `ProcessName` to the process name of the app you want to search. You can edit config file only when the app is closed, otherwise it will not save.
 4. Launch the app once again.

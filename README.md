@@ -17,6 +17,7 @@ It does not work with all apps. The app must have:
 
 1. Open and close the app, this will create a config file.
 2. Inside the config file, change `ProcessName` to the process name of the app you want to search.
+    * You can use special value `*` to disable filtering
     * Process name - is the name of `.exe` file without the `.exe` extension itself.
     * Defaullt value - `ExeFile`, as it was originaly intended for EVE Online.
     * You can edit config file only when the app is closed, otherwise it will not save.

@@ -28,6 +28,10 @@ namespace EveOPreview.Services.Implementation
 		private bool IsMonitoredProcess(string processName)
 		{
 			// This is a possible extension point
+			if (_configuration.ProcessName == "*")
+			{
+				return true;
+			}
 			return String.Equals(processName, _configuration.ProcessName, StringComparison.OrdinalIgnoreCase);
 		}
 

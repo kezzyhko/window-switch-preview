@@ -16,8 +16,9 @@ namespace EveOPreview.Configuration.Implementation
 		public ThumbnailConfiguration()
 		{
 			this.ConfigVersion = 1;
+			this.ProcessName = "ExeFile";
 
-			this.CycleGroup1ForwardHotkeys = new List<string> { "F14", "Control+F14" };
+            this.CycleGroup1ForwardHotkeys = new List<string> { "F14", "Control+F14" };
 			this.CycleGroup1BackwardHotkeys = new List<string> { "F13", "Control+F13" };
 			this.CycleGroup1ClientsOrder = new Dictionary<string, int>
 			{
@@ -82,13 +83,17 @@ namespace EveOPreview.Configuration.Implementation
 			this.ActiveClientHighlightThickness = 3;
 
 			this.LoginThumbnailLocation = new Point(5, 5);
-		}
+        }
 
 
-		[JsonProperty("ConfigVersion")]
-		public int ConfigVersion { get; set; }
+        [JsonProperty("ProcessName")]
+        public string ProcessName { get; set; }
 
-		[JsonProperty("CycleGroup1ForwardHotkeys")]
+
+        [JsonProperty("ConfigVersion")]
+        public int ConfigVersion { get; set; }
+
+        [JsonProperty("CycleGroup1ForwardHotkeys")]
 		public List<string> CycleGroup1ForwardHotkeys { get; set; }
 
 		[JsonProperty("CycleGroup1BackwardHotkeys")]

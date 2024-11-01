@@ -4,10 +4,10 @@ namespace EveOPreview.Services.Implementation
 {
 	sealed class ProcessInfo : IProcessInfo
 	{
-		public ProcessInfo(IntPtr handle, string title)
+		public ProcessInfo(IntPtr handle, string title, int? index)
 		{
 			this.Handle = handle;
-			this.Title = title;
+			this.Title = index == null ? title : $"{title} ({index})";
 		}
 
 		public IntPtr Handle { get; }

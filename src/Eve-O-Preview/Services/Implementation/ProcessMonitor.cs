@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 
 namespace EveOPreview.Services.Implementation
 {
@@ -22,7 +23,7 @@ namespace EveOPreview.Services.Implementation
 			
 			// This field cannot be initialized properly in constructor
 			// At the moment this code is executed the main application window is not yet initialized
-			this._currentProcessInfo = new ProcessInfo(IntPtr.Zero, "");
+			this._currentProcessInfo = new ProcessInfo(IntPtr.Zero, "", null);
 		}
 
 		private bool IsMonitoredProcess(string processName)
@@ -38,7 +39,8 @@ namespace EveOPreview.Services.Implementation
 		private IProcessInfo GetCurrentProcessInfo()
 		{
 			var currentProcess = Process.GetCurrentProcess();
-			return new ProcessInfo(currentProcess.MainWindowHandle, currentProcess.MainWindowTitle);
+			var index = GetIndex(currentProcess.MainWindowHandle, currentProcess.MainWindowTitle);
+			return new ProcessInfo(currentProcess.MainWindowHandle, currentProcess.MainWindowTitle, index);
 		}
 
 		public IProcessInfo GetMainProcess()
@@ -64,7 +66,8 @@ namespace EveOPreview.Services.Implementation
 			// TODO Lock list here just in case
 			foreach (KeyValuePair<IntPtr, string> entry in this._processCache)
 			{
-				result.Add(new ProcessInfo(entry.Key, entry.Value));
+				var index = GetIndex(entry.Key, entry.Value);
+				result.Add(new ProcessInfo(entry.Key, entry.Value, index));
 			}
 
 			return result;
@@ -99,7 +102,8 @@ namespace EveOPreview.Services.Implementation
 				{
 					// This is a new process in the list
 					this._processCache.Add(mainWindowHandle, mainWindowTitle);
-					addedProcesses.Add(new ProcessInfo(mainWindowHandle, mainWindowTitle));
+					var index = GetIndex(mainWindowHandle, mainWindowTitle);
+					addedProcesses.Add(new ProcessInfo(mainWindowHandle, mainWindowTitle, index));
 				}
 				else
 				{
@@ -107,19 +111,64 @@ namespace EveOPreview.Services.Implementation
 					if (cachedTitle != mainWindowTitle)
 					{
 						this._processCache[mainWindowHandle] = mainWindowTitle;
-						updatedProcesses.Add(new ProcessInfo(mainWindowHandle, mainWindowTitle));
+						var index = UpdateIndex(mainWindowHandle, mainWindowTitle, cachedTitle);
+						updatedProcesses.Add(new ProcessInfo(mainWindowHandle, mainWindowTitle, index));
 					}
 
 					knownProcesses.Remove(mainWindowHandle);
 				}
 			}
 
-			foreach (IntPtr index in knownProcesses)
+			foreach (IntPtr handle in knownProcesses)
 			{
-				string title = this._processCache[index];
-				removedProcesses.Add(new ProcessInfo(index, title));
-				this._processCache.Remove(index);
+				string title = this._processCache[handle];
+				var index = RemoveIndex(handle, title);
+				removedProcesses.Add(new ProcessInfo(handle, title, index));
+				this._processCache.Remove(handle);
 			}
 		}
+
+
+		#region Indexes
+
+		private static Dictionary<string, HashSet<int>> indexesByName = new Dictionary<string, HashSet<int>>();
+		private static Dictionary<IntPtr, int> indexByHandle = new Dictionary<IntPtr, int>();
+
+		private int GetIndex(IntPtr handle, string title)
+		{
+			if (indexByHandle.ContainsKey(handle))
+			{
+				return indexByHandle[handle];
+			}
+			if (!indexesByName.ContainsKey(title))
+			{
+				indexesByName[title] = new HashSet<int>();
+			}
+
+			var newIndex = 1;
+			var reservedIndexes = indexesByName[title];
+			while (reservedIndexes.Contains(newIndex))
+			{
+				newIndex++;
+			}
+			reservedIndexes.Add(newIndex);
+			indexByHandle[handle] = newIndex;
+			return newIndex;
+		}
+		private int RemoveIndex(IntPtr handle, string title)
+		{
+			var oldIndex = indexByHandle[handle];
+			indexesByName[title].Remove(oldIndex);
+			indexByHandle.Remove(handle);
+			return oldIndex;
+		}
+
+		private int UpdateIndex(IntPtr handle, string newTitle, string cachedTitle)
+		{
+			RemoveIndex(handle, cachedTitle);
+			return GetIndex(handle, newTitle);
+		}
+
+		#endregion
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EveOPreview.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -6,19 +7,18 @@ namespace EveOPreview.Services.Implementation
 {
 	sealed class ProcessMonitor : IProcessMonitor
 	{
-		#region Private constants
-		private const string DEFAULT_PROCESS_NAME = "ExeFile";
-		private const string CURRENT_PROCESS_NAME = "EVE-O Preview";
-		#endregion
 
 		#region Private fields
 		private readonly IDictionary<IntPtr, string> _processCache;
 		private IProcessInfo _currentProcessInfo;
-		#endregion
+        private readonly IThumbnailConfiguration _configuration;
+        #endregion
 
-		public ProcessMonitor()
+        public ProcessMonitor(IThumbnailConfiguration configuration)
 		{
-			this._processCache = new Dictionary<IntPtr, string>(512);
+			_configuration = configuration;
+
+            this._processCache = new Dictionary<IntPtr, string>(512);
 			
 			// This field cannot be initialized properly in constructor
 			// At the moment this code is executed the main application window is not yet initialized
@@ -28,7 +28,7 @@ namespace EveOPreview.Services.Implementation
 		private bool IsMonitoredProcess(string processName)
 		{
 			// This is a possible extension point
-			return String.Equals(processName, ProcessMonitor.DEFAULT_PROCESS_NAME, StringComparison.OrdinalIgnoreCase);
+			return String.Equals(processName, _configuration.ProcessName, StringComparison.OrdinalIgnoreCase);
 		}
 
 		private IProcessInfo GetCurrentProcessInfo()
